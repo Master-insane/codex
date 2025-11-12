@@ -1,0 +1,218 @@
+------------------BFS----------------------
+
+# import queue
+# import networkx as nx
+# import matplotlib.pyplot as plt
+
+# def bfs(G, start_node):
+#     visited = set()
+#     parent = {}
+#     q = queue.Queue()
+#     q.put(start_node)
+#     order = []
+
+#     while not q.empty():
+#         vertex = q.get()
+#         if vertex not in visited:
+#             visited.add(vertex)
+#             order.append(vertex)
+#             for node in G[vertex]:
+#                 if node not in visited:
+#                     parent[node] = vertex
+#                     q.put(node)
+
+#     path = []
+#     last_node = order[-1]
+#     node = last_node
+#     while node != start_node:
+#         path.append(node)
+#         node = parent[node]
+#     path.append(start_node)
+#     path.reverse()
+#     return order, path
+
+
+# def visualize_bfs(G, pos, order, path):
+#     for node in order:
+#         plt.clf()
+#         nx.draw(
+#             G, pos, with_labels=True,
+#             node_color=['r' if n == node else 'g' for n in G.nodes()]
+#         )
+#         plt.title(f"Exploring: {node}")
+#         plt.pause(1)
+
+
+#     plt.clf()
+#     nx.draw(
+#         G, pos, with_labels=True,
+#         node_color=['y' if n in path else 'g' for n in G.nodes()]
+#     )
+#     plt.title(f"Final Path: {' → '.join(path)}")
+#     plt.show()
+
+
+# G = {
+#     'Delhi': ['Agra', 'Jaipur'],
+#     'Agra': ['Delhi', 'Lucknow'],
+#     'Jaipur': ['Delhi', 'Udaipur'],
+#     'Lucknow': ['Agra', 'Kanpur'],
+#     'Udaipur': ['Jaipur', 'Surat'],
+#     'Surat': ['Udaipur', 'Mumbai'],
+#     'Kanpur': ['Lucknow', 'Varanasi'],
+#     'Mumbai': ['Surat'],
+#     'Varanasi': ['Kanpur']
+# }
+
+# G = nx.Graph(G)
+
+# pos = nx.spring_layout(G)
+# order, path = bfs(G, 'Delhi')
+# print(order)
+# print(path)
+# visualize_bfs(G, pos, order, path)
+
+
+
+-------------------------------------DFS-----------------------------------------------------
+
+# import networkx as nx
+# import matplotlib.pyplot as plt
+
+# def dfs(G, start_node):
+#     visited = set()
+#     parent = {}
+#     stack = [start_node]
+#     order = []
+
+#     while stack:
+#         vertex = stack.pop()
+#         if vertex not in visited:
+#             visited.add(vertex)
+#             order.append(vertex)
+#             for node in reversed(list(G[vertex])):  # reversed for consistent DFS order
+#                 if node not in visited:
+#                     parent[node] = vertex
+#                     stack.append(node)
+
+#     # reconstruct path from start to last visited node
+#     path = []
+#     last_node = order[-1]
+#     node = last_node
+#     while node != start_node:
+#         path.append(node)
+#         node = parent[node]
+#     path.append(start_node)
+#     path.reverse()
+#     return order, path
+
+
+# def visualize_dfs(G, pos, order, path):
+#     # Step 1: Show nodes being explored
+#     for node in order:
+#         plt.clf()
+#         nx.draw(
+#             G, pos, with_labels=True,
+#             node_color=['r' if n == node else 'g' for n in G.nodes()]
+#         )
+#         plt.title(f"Exploring: {node}")
+#         plt.pause(1)
+
+#     # Step 2: Show final highlighted DFS path
+#     plt.clf()
+#     nx.draw(
+#         G, pos, with_labels=True,
+#         node_color=['y' if n in path else 'g' for n in G.nodes()]
+#     )
+#     plt.title(f"Final Path: {' → '.join(path)}")
+#     plt.show()
+
+
+# # Graph (like your BFS)
+# G = {
+#     'Delhi': ['Agra', 'Jaipur'],
+#     'Agra': ['Delhi', 'Lucknow'],
+#     'Jaipur': ['Delhi', 'Udaipur'],
+#     'Lucknow': ['Agra', 'Kanpur'],
+#     'Udaipur': ['Jaipur', 'Surat'],
+#     'Surat': ['Udaipur', 'Mumbai'],
+#     'Kanpur': ['Lucknow', 'Varanasi'],
+#     'Mumbai': ['Surat'],
+#     'Varanasi': ['Kanpur']
+# }
+
+# # Convert to NetworkX graph for visualization
+# G = nx.Graph(G)
+
+# # Run DFS and visualize
+# pos = nx.spring_layout(G)
+# order, path = dfs(G, 'Delhi')
+# print("DFS Order:", order)
+# print("Path:", path)
+# visualize_dfs(G, pos, order, path)
+
+
+---------------------------------------------UCS-----------------------------------------
+
+
+# import queue
+# import networkx as nx
+# import matplotlib.pyplot as plt
+
+# def ucs(G, start_node):
+#     visited = set()
+#     pq = queue.PriorityQueue()
+#     pq.put((0, start_node))  
+#     cost_so_far = {start_node: 0}
+#     order = []
+
+#     while not pq.empty():
+#         current_cost, vertex = pq.get()
+
+#         if vertex in visited:
+#             continue
+
+#         visited.add(vertex)
+#         order.append(vertex)
+
+#         for neighbor in G.neighbors(vertex):
+#             edge_cost = G[vertex][neighbor].get('weight', 1)
+#             new_cost = current_cost + edge_cost
+
+#             if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+#                 cost_so_far[neighbor] = new_cost
+#                 pq.put((new_cost, neighbor))
+
+#     return order
+
+# def visualise_ucs(G, pos, order):
+#     for i, node in enumerate(order, start=1):
+#         plt.clf()
+#         nx.draw(
+#             G, pos, with_labels=True,
+#             node_color=['r' if n == node else 'g' for n in G.nodes()],
+#             edge_color='gray'
+#         )
+#         edge_labels = nx.get_edge_attributes(G, 'weight')
+#         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+#         plt.title(f"Step {i}: Visiting {node}")
+#         plt.pause(2)
+#     plt.show()
+
+
+# G = nx.Graph()
+# G.add_weighted_edges_from([
+#     ('A', 'B', 2),
+#     ('A', 'C', 1),
+#     ('B', 'D', 4),
+#     ('B', 'E', 3),
+#     ('C', 'F', 6),
+#     ('C', 'G', 5)
+# ])
+
+# pos = nx.spring_layout(G)
+# order = ucs(G, 'A')
+# print("UCS Visit Order:", order)
+# visualise_ucs(G, pos, order)
+
+
