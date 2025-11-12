@@ -1,0 +1,231 @@
+BFS:
+import time, queue
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def bfs(graph, start_node):
+  visited = set()
+  q = queue.Queue()
+  q.put(start_node)
+  order = []
+
+  while not q.empty():
+    vertex = q.get()
+    if vertex not in visited:
+      visited.add(vertex)
+      order.append(vertex)
+
+      for node in graph[vertex]:
+        if node not in visited:
+          q.put(node)
+
+  return order
+
+def dfs(graph, start_node):
+  visited = set()
+  order = []
+  stack = [start_node]
+
+  while stack:
+    vertex = stack.pop()
+    if vertex not in visited:
+      visited.add(vertex)
+      order.append(vertex)
+      neighbours = list(graph[vertex])
+      for node in reversed(neighbours):
+        if node not in visited:
+          stack.append(node)
+
+  return order
+
+def ucs(graph, start_node):
+  visited = set()
+  order = []
+  pq = queue.PriorityQueue()
+  pq.put((0,start_node))
+
+  while not pq.empty():
+    cost, vertex = pq.get()
+    if vertex not in visited:
+      visited.add(vertex)
+      order.append(vertex)
+      for n in graph[vertex]:
+        if n not in visited:
+          edge_weight = graph[vertex][n].get('weight')
+          pq.put((cost + edge_weight, n))
+
+  return order
+
+def visualise (G, order, title, pos):
+  fig, axs = plt.subplots()
+  plt.title(title)
+  for i, node in enumerate(order, start = 1):
+    plt.clf()
+    plt.title(title)
+    nx.draw(G, pos, with_labels = True, node_color = ['r' if n == node else 'g' for n in G.nodes])
+    plt.show()
+
+G = nx.Graph()
+G.add_edges_from(
+[
+    ('A','B'), ('A','C'), ('B','D'), ('B','E'), ('C','F'),('C','G')
+])
+pos = nx.spring_layout(G)
+
+
+bfs_order = bfs(G,start_node='A')
+visualise(G, bfs_order,title = "BFS Visualization", pos = pos)
+
+DFS:
+import time
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def order_dfs(graph, start_node):
+    visited = set()
+    stack = [start_node]
+    order = []
+
+    while stack:
+        vertex = stack.pop()
+        if vertex not in visited:
+            visited.add(vertex)
+            order.append(vertex)
+            for node in reversed(list(graph[vertex])):
+                if node not in visited:
+                    stack.append(node)
+    return order
+
+
+def visualize_search(G, order, title, pos):
+    fig, ax = plt.subplots()
+    plt.title(title)
+
+    for node in order:
+        plt.clf()
+        plt.title(title)
+        nx.draw(G, pos, with_labels=True,
+                node_color=['r' if n == node else 'y' for n in G.nodes()])
+        plt.draw()
+        plt.pause(2)
+        time.sleep(2)
+    plt.show()
+
+
+# Main part
+G = nx.Graph()
+G.add_edges_from([
+    ('A', 'B'), ('A', 'C'),
+    ('B', 'D'), ('B', 'E'),
+    ('C', 'F'), ('C', 'G')
+])
+
+pos = nx.spring_layout(G)
+dfs_order = order_dfs(G, start_node='A')
+visualize_search(G, dfs_order, title='DFS Visualization', pos=pos)
+
+UCS:
+import time, queue
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def ucs(G, start_node):
+    visited = set()
+    pq = queue.PriorityQueue()
+    pq.put((0, start_node))  # (cost, node)
+    cost_so_far = {start_node: 0}
+    order = []
+
+    while not pq.empty():
+        current_cost, vertex = pq.get()
+
+        if vertex in visited:
+            continue
+
+        visited.add(vertex)
+        order.append(vertex)
+
+        for neighbor in G.neighbors(vertex):
+            edge_cost = G[vertex][neighbor].get('weight', 1)
+            new_cost = current_cost + edge_cost
+
+            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                cost_so_far[neighbor] = new_cost
+                pq.put((new_cost, neighbor))
+
+    return order
+
+def visualise_graph(G, pos, title, order):
+    plt.title(title)
+    for i, node in enumerate(order, start=1):
+        plt.clf()
+        plt.title(f"{title}\nStep {i}: Visiting {node}")
+        nx.draw(G, pos, with_labels=True,
+                node_color=['r' if n == node else 'g' for n in G.nodes],
+                edge_color='gray')
+        edge_labels = nx.get_edge_attributes(G, 'weight')
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+        plt.draw()
+        plt.pause(2)
+    time.sleep(2)
+    plt.show()
+
+# Create weighted graph
+G = nx.Graph()
+G.add_weighted_edges_from([
+    ('A', 'B', 2),
+    ('A', 'C', 1),
+    ('B', 'D', 4),
+    ('B', 'E', 3),
+    ('C', 'F', 6),
+    ('C', 'G', 5)
+])
+
+pos = nx.spring_layout(G)
+order = ucs(G, start_node='A')
+visualise_graph(G, pos=pos, title='Visualising UCS', order=order)
+
+
+MONKEY BANANA PROBLEM
+% To move (Action) changes state
+
+move(state(middle, onbox, middle, hasnot),
+     grasp,
+     state(middle, onbox, middle, has)).
+
+move(state(P, onfloor, P, H),
+     climb,
+     state(P, onbox, P, H)).
+
+move(state(P1, onfloor, P1, H),
+     push(P1, P2),
+     state(P2, onfloor, P2, H)).
+
+move(state(P1, onfloor, B, H),
+     walk(P1, P2),
+     state(P2, onfloor, B, H)).
+
+% Goal condition
+
+canget(state(_, _, _, has)).
+
+canget(S1) :-
+    move(S1, _, S2),
+    canget(S2).
+OUTPUT:
+% INPUT AND OUTPUT:
+
+?- canget(state(atdoor, onfloor, atwindow, hasnot)).
+% OUTPUT: true.
+
+?- canget(state(middle, onbox, middle, hasnot)).
+% OUTPUT: true.
+
+?- canget(state(atdoor, onfloor, middle, hasnot)).
+% OUTPUT: true.
+
+?- canget(state(atwindow, onfloor, atdoor, hasnot)).
+% OUTPUT: true.
+
+
+
